@@ -1,6 +1,5 @@
 # import atexit
-from pyVmomi import vim, vmodl
-from pyVim.connect import SmartConnectNoSSL#, Disconnect
+
 import time
 import json
 from datetime import timedelta
@@ -34,6 +33,9 @@ DATASTORE_DEFAULT="capacity"
 CONF_ATTRIBUTION="Powered by Syjjx"
 
 REQUIREMENTS = ['pyvmomi==6.7']
+
+from pyVmomi import vim, vmodl
+from pyVim.connect import SmartConnectNoSSL#, Disconnect
 
 DATASTORE = {
     "freePercent": ["datastore_freePercent", "存储剩余容量百分比", "mdi:harddisk", "%"]
