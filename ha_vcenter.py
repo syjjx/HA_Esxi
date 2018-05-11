@@ -400,6 +400,7 @@ class Hello_Esxi():
         query = vim.PerformanceManager.QuerySpec(intervalId=20, entity=entity, metricId=[metricId], startTime=startTime,
                                                  endTime=endTime)
         perfResults = perfManager.QueryPerf(querySpec=[query])
+        
         if perfResults:
             return perfResults
         else:
@@ -411,40 +412,54 @@ class Hello_Esxi():
 
     def _VmInfo(self,vm,content,vchtime,interval,perf_dict,tags):
         try:
+          
             statInt = interval/20
             summary = vm.summary
             stats = summary.quickStats
             
             uptime = stats.uptimeSeconds
-            
+          
             cpuUsage = 100 * float(stats.overallCpuUsage)/float(summary.runtime.maxCpuUsage)
             
             memoryUsage = stats.guestMemoryUsage * 1024 * 1024
             
             memoryCapacity = summary.runtime.maxMemoryUsage * 1024 * 1024
-            
+             
             freeMemoryPercentage = 100 - (
                 (float(memoryUsage) / memoryCapacity) * 100
-            )
-            
-            statDatastoreRead = self._BuildQuery(content, vchtime, (self._perf_id(perf_dict, 'datastore.read.average')),"*", vm, interval)
-            DatastoreRead = (float(sum(statDatastoreRead[0].value[0].value) * 1024) / statInt)
-            
+            )           
+            statDatastoreRead = self._BuildQuery(content, vchtime, (self._perf_id(perf_dict, 'datastore.read.average')),"*", vm, interval) 
+            if statDatastoreRead!=False:
+                DatastoreRead = (float(sum(statDatastoreRead[0].value[0].value) * 1024) / statInt)
+            else:
+                DatastoreRead = 0
+
             statDatastoreWrite = self._BuildQuery(content, vchtime, (self._perf_id(perf_dict, 'datastore.write.average')),"*", vm, interval)
-            DatastoreWrite = (float(sum(statDatastoreWrite[0].value[0].value) * 1024) / statInt)
-            
+            if statDatastoreWrite!=False:
+                DatastoreWrite = (float(sum(statDatastoreWrite[0].value[0].value) * 1024) / statInt)
+            else:
+                DatastoreWrite = 0
+
             statDatastoreIoRead = self._BuildQuery(content, vchtime, (self._perf_id(perf_dict, 'datastore.numberReadAveraged.average')),"*", vm, interval)
-            DatastoreIoRead = (float(sum(statDatastoreIoRead[0].value[0].value)) / statInt)
-            
+            if statDatastoreIoRead!=False:
+                DatastoreIoRead = (float(sum(statDatastoreIoRead[0].value[0].value)) / statInt)
+            else:
+                DatastoreIoRead = 0
             statDatastoreIoWrite = self._BuildQuery(content, vchtime, (self._perf_id(perf_dict, 'datastore.numberWriteAveraged.average')),"*", vm, interval)
-            DatastoreIoWrite = (float(sum(statDatastoreIoWrite[0].value[0].value)) / statInt)
-            
+            if statDatastoreIoWrite!=False:
+                DatastoreIoWrite = (float(sum(statDatastoreIoWrite[0].value[0].value)) / statInt)
+            else:
+                DatastoreIoWrite = 0
             statDatastoreLatRead = self._BuildQuery(content, vchtime, (self._perf_id(perf_dict, 'datastore.totalReadLatency.average')), "*", vm, interval)
-            DatastoreLatRead = (float(sum(statDatastoreLatRead[0].value[0].value)) / statInt)
-
+            if statDatastoreLatRead!=False:
+                DatastoreLatRead = (float(sum(statDatastoreLatRead[0].value[0].value)) / statInt)
+            else:
+                DatastoreLatRead = 0
             statDatastoreLatWrite = self._BuildQuery(content, vchtime, (self._perf_id(perf_dict, 'datastore.totalWriteLatency.average')), "*", vm, interval)
-            DatastoreLatWrite = (float(sum(statDatastoreLatWrite[0].value[0].value)) / statInt)
-
+            if statDatastoreLatWrite!=False:
+                DatastoreLatWrite = (float(sum(statDatastoreLatWrite[0].value[0].value)) / statInt)
+            else:
+                DatastoreLatWrite = 0
             statNetworkTx = self._BuildQuery(content, vchtime, (self._perf_id(perf_dict, 'net.transmitted.average')), "", vm, interval)
             if statNetworkTx != False:
                 networkTx = (float(sum(statNetworkTx[0].value[0].value) * 8 * 1024) / statInt)
